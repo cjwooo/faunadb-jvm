@@ -133,7 +133,7 @@ public class FaunaClient implements AutoCloseable {
   private final ObjectMapper json = new ObjectMapper().registerModule(new Jdk8Module());
   private final Connection connection;
 
-  private FaunaClient(Connection connection) {
+  public FaunaClient(Connection connection) {
     this.connection = connection;
   }
 
