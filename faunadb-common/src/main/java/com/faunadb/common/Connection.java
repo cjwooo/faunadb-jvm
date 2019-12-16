@@ -390,7 +390,10 @@ public final class Connection implements AutoCloseable {
       request.headers().set("X-Last-Seen-Txn", Long.toString(time));
     }
 
-    log.info(format("Request body: %s", request.content().toString(UTF_8)));
+    String requestBody = request.content().toString(UTF_8);
+    if (requestBody.length() == 0 && request.method().equals(HttpMethod.POST)) {
+       throw new RuntimeException("ERROR: POST Request body is empty");
+    }
 
     request.retain();
 
