@@ -366,6 +366,18 @@ public final class Connection implements AutoCloseable {
     FullHttpRequest request = newRequest(method, path);
 
     byte[] jsonBody = json.writeValueAsBytes(body);
+
+
+    StringBuilder s = new StringBuilder();
+    for (int i = 0; i < jsonBody.length; i ++) {
+      byte b = jsonBody[i];
+      s.append((char) b);
+    }
+
+    int bodyLength = s.toString().length();
+    if (bodyLength < 8) {
+      log.info("************ Body length < 8: " + s.toString());
+    }
     request.content().clear().writeBytes(jsonBody);
 
     request.headers().set(HttpHeaderNames.CONTENT_LENGTH, jsonBody.length);
@@ -395,11 +407,6 @@ public final class Connection implements AutoCloseable {
     client.sendRequest(request).whenCompleteAsync((response, throwable) -> {
 
       ctx.stop();
-
-      String requestBody = request.content().toString(UTF_8);
-      if (requestBody.length() == 0) {
-        throw new RuntimeException("ERROR: POST Request body is empty");
-      }
 
       if (throwable != null) {
         logFailure(request, throwable);
