@@ -380,6 +380,7 @@ public final class Connection implements AutoCloseable {
 
     request.headers().add("Authorization", authHeader);
     request.headers().set("X-FaunaDB-API-Version", API_VERSION);
+    request.headers().set(HttpHeaderNames.CONTENT_ENCODING, HttpHeaderValues.GZIP);
 
     if(jvmDriver != null) {
       request.headers().set(X_FAUNA_DRIVER, jvmDriver.toString());
