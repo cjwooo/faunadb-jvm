@@ -438,8 +438,8 @@ public final class Connection implements AutoCloseable {
   private void logFailure(FullHttpRequest request, Throwable ex) {
     int length = request.content().array().length;
     log.info(
-      format("Request: %s %s: %s. Failed: %s",
-        request.method(), request.uri(), request.content().toString(0, Math.min(128, length), UTF_8), ex.getMessage()), ex);
+      format("Request: %s %s: %s (%s characters). Failed: %s",
+        request.method(), request.uri(), request.content().toString(0, Math.min(128, length), UTF_8), length, ex.getMessage()), ex);
   }
 
   private static String generateAuthHeader(String authToken) {
