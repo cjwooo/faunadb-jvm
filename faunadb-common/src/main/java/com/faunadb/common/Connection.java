@@ -390,16 +390,16 @@ public final class Connection implements AutoCloseable {
       request.headers().set("X-Last-Seen-Txn", Long.toString(time));
     }
 
-    String requestBody = request.content().toString(UTF_8);
-    if (requestBody.length() == 0 && request.method().equals(HttpMethod.POST)) {
-       throw new RuntimeException("ERROR: POST Request body is empty");
-    }
-
     request.retain();
 
     client.sendRequest(request).whenCompleteAsync((response, throwable) -> {
 
       ctx.stop();
+
+      String requestBody = request.content().toString(UTF_8);
+      if (requestBody.length() == 0) {
+        throw new RuntimeException("ERROR: POST Request body is empty");
+      }
 
       if (throwable != null) {
         logFailure(request, throwable);
