@@ -390,6 +390,8 @@ public final class Connection implements AutoCloseable {
       request.headers().set("X-Last-Seen-Txn", Long.toString(time));
     }
 
+    log.info(format("Request body: %s", request.content().toString(UTF_8)));
+
     request.retain();
 
     client.sendRequest(request).whenCompleteAsync((response, throwable) -> {
