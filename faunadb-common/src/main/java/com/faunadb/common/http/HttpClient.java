@@ -39,7 +39,7 @@ public class HttpClient extends AbstractReferenceCounted implements AutoCloseabl
 
   private static final int WORKER_QUIET_PERIOD = 2_000;
   private static final int WORKER_TIMEOUT = 15_000;
-  private static final int MAX_CONTENT_LENGTH = 5 * 1000 * 1000;
+  private static final int MAX_CONTENT_LENGTH = 32 * 1000 * 1000;
 
   private final int port;
   private final String host;
