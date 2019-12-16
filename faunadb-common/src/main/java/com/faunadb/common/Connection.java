@@ -13,6 +13,7 @@ import io.netty.util.IllegalReferenceCountException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOError;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -23,6 +24,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.zip.GZIPOutputStream;
 
 import static io.netty.util.CharsetUtil.US_ASCII;
 import static io.netty.util.CharsetUtil.UTF_8;
@@ -366,10 +368,20 @@ public final class Connection implements AutoCloseable {
     FullHttpRequest request = newRequest(method, path);
 
     byte[] jsonBody = json.writeValueAsBytes(body);
-    request.content().clear().writeBytes(jsonBody);
 
-    request.headers().set(HttpHeaderNames.CONTENT_LENGTH, jsonBody.length);
+    ByteArrayOutputStream bos = new ByteArrayOutputStream(jsonBody.length);
+    GZIPOutputStream gzip = new GZIPOutputStream(bos);
+    gzip.write(jsonBody);
+    gzip.close();
+
+    byte[] compressedJsonBody = bos.toByteArray();
+    bos.close();
+
+    request.content().clear().writeBytes(compressedJsonBody);
+
+    request.headers().set(HttpHeaderNames.CONTENT_LENGTH, compressedJsonBody.length);
     request.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=utf-8");
+    request.headers().set(HttpHeaderNames.CONTENT_ENCODING, HttpHeaderValues.GZIP);
 
     return request;
   }
@@ -380,7 +392,6 @@ public final class Connection implements AutoCloseable {
 
     request.headers().add("Authorization", authHeader);
     request.headers().set("X-FaunaDB-API-Version", API_VERSION);
-    request.headers().set(HttpHeaderNames.CONTENT_ENCODING, HttpHeaderValues.GZIP);
 
     if(jvmDriver != null) {
       request.headers().set(X_FAUNA_DRIVER, jvmDriver.toString());
