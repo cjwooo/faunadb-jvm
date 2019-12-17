@@ -13,6 +13,8 @@ import io.netty.util.IllegalReferenceCountException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOError;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -437,6 +439,13 @@ public final class Connection implements AutoCloseable {
 
   private void logFailure(FullHttpRequest request, Throwable ex) {
     int length = request.content().readerIndex();
+    try {
+      FileOutputStream out = new FileOutputStream("/tmp/query");
+      out.write(request.content().array());
+      out.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     log.info(
       format("Request: %s %s: %s (%s characters). Failed: %s",
         request.method(), request.uri(), request.content().toString(0, Math.min(128, length), UTF_8), length, ex.getMessage()), ex);
