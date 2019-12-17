@@ -436,7 +436,7 @@ public final class Connection implements AutoCloseable {
   }
 
   private void logFailure(FullHttpRequest request, Throwable ex) {
-    int length = request.content().array().length;
+    int length = request.content().readerIndex();
     log.info(
       format("Request: %s %s: %s (%s characters). Failed: %s",
         request.method(), request.uri(), request.content().toString(0, Math.min(128, length), UTF_8), length, ex.getMessage()), ex);
