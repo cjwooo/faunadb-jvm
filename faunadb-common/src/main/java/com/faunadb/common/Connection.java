@@ -370,8 +370,9 @@ public final class Connection implements AutoCloseable {
     byte[] jsonBody = json.writeValueAsBytes(body);
     request.content().clear().writeBytes(jsonBody);
 
-    request.headers().set(HttpHeaderNames.CONTENT_LENGTH, jsonBody.length);
+    // request.headers().set(HttpHeaderNames.CONTENT_LENGTH, jsonBody.length);
     request.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=utf-8");
+    request.headers().set(HttpHeaderNames.ACCEPT_ENCODING, "gzip");
 
     return request;
   }

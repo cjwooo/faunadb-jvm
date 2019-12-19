@@ -280,6 +280,7 @@ public class HttpClient extends AbstractReferenceCounted implements AutoCloseabl
         }
 
         p.addLast("codec", new HttpClientCodec());
+        p.addLast("deflator", new HttpContentCompressor());
         p.addLast("inflator", new HttpContentDecompressor());
         p.addLast("aggregator", new HttpObjectAggregator(MAX_CONTENT_LENGTH));
 
