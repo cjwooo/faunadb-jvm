@@ -368,7 +368,7 @@ public final class Connection implements AutoCloseable {
     byte[] jsonBody = json.writeValueAsBytes(body);
     ByteArrayOutputStream byteStream = new ByteArrayOutputStream(jsonBody.length);
     GZIPOutputStream stream = new GZIPOutputStream(byteStream);
-    stream.write(jsonBody);
+    stream.write(jsonBody, 0, jsonBody.length);
     stream.close();
     byteStream.close();
     byte[] compressedJsonBody = byteStream.toByteArray();
@@ -444,13 +444,13 @@ public final class Connection implements AutoCloseable {
 
   private void logFailure(FullHttpRequest request, Throwable ex) {
     int length = request.content().readerIndex();
-    try {
-      FileOutputStream out = new FileOutputStream("/tmp/query");
-      out.write(request.content().array());
-      out.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+//    try {
+//      FileOutputStream out = new FileOutputStream("/tmp/query");
+//      out.write(request.content().array());
+//      out.close();
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    }
     log.info(
       format("Request: %s %s: %s (%s characters). Failed: %s",
         request.method(), request.uri(), request.content().toString(0, Math.min(128, length), UTF_8), length, ex.getMessage()), ex);
