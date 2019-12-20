@@ -13,10 +13,7 @@ import io.netty.util.IllegalReferenceCountException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOError;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -25,6 +22,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.zip.GZIPOutputStream;
 
 import static io.netty.util.CharsetUtil.US_ASCII;
 import static io.netty.util.CharsetUtil.UTF_8;
@@ -368,11 +366,17 @@ public final class Connection implements AutoCloseable {
     FullHttpRequest request = newRequest(method, path);
 
     byte[] jsonBody = json.writeValueAsBytes(body);
-    request.content().clear().writeBytes(jsonBody);
+    ByteArrayOutputStream byteStream = new ByteArrayOutputStream(jsonBody.length);
+    GZIPOutputStream stream = new GZIPOutputStream(byteStream);
+    stream.write(jsonBody);
+    stream.close();
+    byteStream.close();
+    byte[] compressedJsonBody = byteStream.toByteArray();
+    request.content().clear().writeBytes(compressedJsonBody);
 
-    // request.headers().set(HttpHeaderNames.CONTENT_LENGTH, jsonBody.length);
+    request.headers().set(HttpHeaderNames.CONTENT_LENGTH, compressedJsonBody.length);
     request.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=utf-8");
-    request.headers().set(HttpHeaderNames.ACCEPT_ENCODING, "gzip");
+    request.headers().set(HttpHeaderNames.CONTENT_ENCODING, "gzip");
 
     return request;
   }
